@@ -21,7 +21,7 @@ SCALAR: [0-9]+;
 COLOR: '#' [0-9a-f] [0-9a-f] [0-9a-f] [0-9a-f] [0-9a-f] [0-9a-f];
 
 //Specific identifiers for id's and css classes
-IDENT: [A-Z] [a-zA-Z0-9\-]*;
+VAR_IDENT: [A-Z] [a-zA-Z0-9\-]*;
 ID_IDENT: '#' [a-z0-9\-]+;
 CLASS_IDENT: '.' [a-z0-9\-]+;
 
@@ -44,12 +44,12 @@ ASSIGNMENT_OPERATOR: ':=';
 
 //--- PARSER: ---
 // -- LEVEL 0, 1 --
-stylesheet: stylerule+;
-stylerule: variable_declaration*? selector OPEN_BRACE declaration+ CLOSE_BRACE;
-variable_declaration: IDENT ASSIGNMENT_OPERATOR value SEMICOLON;
-selector: ID_IDENT | CLASS_IDENT | LOWER_IDENT | CAPITAL_IDENT;
-declaration: property value SEMICOLON;
-property: LOWER_IDENT COLON;
-value: variable | COLOR | PIXELSIZE | PERCENTAGE | TRUE | FALSE;
-variable: IDENT;
+stylesheet: (variableAssignment | stylerule)+;
+stylerule: tagSelector OPEN_BRACE declaration+ CLOSE_BRACE;
+variableAssignment: variableReference ASSIGNMENT_OPERATOR expression SEMICOLON;
+tagSelector: ID_IDENT | CLASS_IDENT | LOWER_IDENT | CAPITAL_IDENT;
+declaration: property COLON (expression | variableReference) SEMICOLON;
+property: LOWER_IDENT;
+expression: COLOR #color | PIXELSIZE #pixelSize | PERCENTAGE #percentage | TRUE #trueBoolean | FALSE #falseBoolean;
+variableReference: VAR_IDENT;
 
