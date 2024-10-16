@@ -169,13 +169,13 @@ public class ASTListener extends nl.han.ica.icss.parser.ICSSBaseListener {
 	}
 
 	@Override
-	public void enterVariableReference(nl.han.ica.icss.parser.ICSSParser.VariableReferenceContext ctx) {
+	public void enterVariable(nl.han. ica.icss.parser.ICSSParser.VariableContext ctx) {
 		VariableReference variableReference = new VariableReference(ctx.getText());
 		currentContainer.push(variableReference);
 	}
 
 	@Override
-	public void exitVariableReference(nl.han.ica.icss.parser.ICSSParser.VariableReferenceContext ctx) {
+	public void exitVariable(nl.han.ica.icss.parser.ICSSParser.VariableContext ctx) {
 		VariableReference variableReference = (VariableReference) currentContainer.pop();
 		currentContainer.peek().addChild(variableReference);
 	}
