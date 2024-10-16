@@ -46,7 +46,7 @@ ASSIGNMENT_OPERATOR: ':=';
 // -- LEVEL 0, 1 --
 stylesheet: (variableAssignment | stylerule)+;
 stylerule: tagSelector OPEN_BRACE declaration+ CLOSE_BRACE;
-variableAssignment: variableReference ASSIGNMENT_OPERATOR expression SEMICOLON;
+variableAssignment: VAR_IDENT ASSIGNMENT_OPERATOR expression SEMICOLON;
 tagSelector: ID_IDENT | CLASS_IDENT | LOWER_IDENT | CAPITAL_IDENT;
 declaration: property COLON (expression | variableReference) SEMICOLON;
 property: LOWER_IDENT;

@@ -1,5 +1,6 @@
 package nl.han.ica.icss.checker;
 
+import nl.han.ica.datastructures.HANLinkedList;
 import nl.han.ica.datastructures.IHANLinkedList;
 import nl.han.ica.icss.ast.*;
 import nl.han.ica.icss.ast.literals.ColorLiteral;
@@ -16,7 +17,7 @@ public class Checker {
 
     public void check(AST ast) {
         checkStyleSheet(ast.root);
-        // variableTypes = new HANLinkedList<>();
+        variableTypes = new HANLinkedList<>();
 
     }
 
@@ -53,15 +54,15 @@ public class Checker {
     private void checkDeclaration(Declaration node) {
         if (node.property.name.equals("width")){
             if (!(node.expression instanceof PixelLiteral)){
-                node.setError("Property 'width' has invalid type");
+                node.property.setError("Property 'width' has invalid type");
             }
         } else if (node.property.name.equals("color")){
             if (!(node.expression instanceof ColorLiteral)){
-                node.setError("Property 'color' has invalid type");
+                node.property.setError("Property 'color' has invalid type");
             }
         } else if (node.property.name.equals("background-color")){
             if (!(node.expression instanceof ColorLiteral)){
-                node.setError("Property 'background-color' has invalid type");
+                node.property.setError("Property 'background-color' has invalid type");
             }
         }
     }

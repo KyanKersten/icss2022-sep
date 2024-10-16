@@ -2,15 +2,9 @@ package nl.han.ica.icss.transforms;
 
 import nl.han.ica.datastructures.IHANLinkedList;
 import nl.han.ica.icss.ast.*;
-import nl.han.ica.icss.ast.literals.PercentageLiteral;
-import nl.han.ica.icss.ast.literals.PixelLiteral;
-import nl.han.ica.icss.ast.literals.ScalarLiteral;
-import nl.han.ica.icss.ast.operations.AddOperation;
-import nl.han.ica.icss.ast.operations.MultiplyOperation;
-import nl.han.ica.icss.ast.operations.SubtractOperation;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 
 public class Evaluator implements Transform {
 
@@ -23,8 +17,26 @@ public class Evaluator implements Transform {
     @Override
     public void apply(AST ast) {
         //variableValues = new HANLinkedList<>();
-
+        applyStyleSheet((Stylesheet)ast.root);
     }
 
-    
+    private void applyStyleSheet(Stylesheet node) {
+            applyStyleRule((Stylerule) node.getChildren().get(0));
+    }
+
+    private void applyStyleRule(Stylerule node) {
+        for (ASTNode child: node.getChildren()){
+            if (child instanceof Declaration){
+                applyDeclaration((Declaration) child);
+            }
+        }
+    }
+
+    private void applyDeclaration(Declaration node) {
+        node.expression = evalExpression(node.expression);
+    }
+
+    private Expression evalExpression(Expression expression) {
+        return expression;
+    }
 }
