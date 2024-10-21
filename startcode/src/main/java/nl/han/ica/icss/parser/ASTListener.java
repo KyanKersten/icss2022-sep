@@ -5,10 +5,10 @@ import com.sun.jdi.Value;
 import nl.han.ica.datastructures.HANStack;
 import nl.han.ica.datastructures.IHANStack;
 import nl.han.ica.icss.ast.*;
-import nl.han.ica.icss.ast.literals.BoolLiteral;
-import nl.han.ica.icss.ast.literals.ColorLiteral;
-import nl.han.ica.icss.ast.literals.PercentageLiteral;
-import nl.han.ica.icss.ast.literals.PixelLiteral;
+import nl.han.ica.icss.ast.literals.*;
+import nl.han.ica.icss.ast.operations.AddOperation;
+import nl.han.ica.icss.ast.operations.MultiplyOperation;
+import nl.han.ica.icss.ast.operations.SubtractOperation;
 import nl.han.ica.icss.ast.selectors.TagSelector;
 import org.antlr.v4.runtime.ParserRuleContext;
 
@@ -178,5 +178,53 @@ public class ASTListener extends nl.han.ica.icss.parser.ICSSBaseListener {
 	public void exitVariable(nl.han.ica.icss.parser.ICSSParser.VariableContext ctx) {
 		VariableReference variableReference = (VariableReference) currentContainer.pop();
 		currentContainer.peek().addChild(variableReference);
+	}
+
+	@Override
+	public void enterScalar(nl.han.ica.icss.parser.ICSSParser.ScalarContext ctx) {
+		ScalarLiteral scalarLiteral = new ScalarLiteral(ctx.getText());
+		currentContainer.push(scalarLiteral);
+	}
+
+	@Override
+	public void exitScalar(nl.han.ica.icss.parser.ICSSParser.ScalarContext ctx) {
+		ScalarLiteral scalarLiteral = (ScalarLiteral) currentContainer.pop();
+		currentContainer.peek().addChild(scalarLiteral);
+	}
+
+	@Override
+	public void enterAddExpression(nl.han.ica.icss.parser.ICSSParser.AddExpressionContext ctx) {
+		AddOperation addOperation = new AddOperation();
+		currentContainer.push(addOperation);
+	}
+
+	@Override
+	public void exitAddExpression(nl.han.ica.icss.parser.ICSSParser.AddExpressionContext ctx) {
+		AddOperation addOperation = (AddOperation) currentContainer.pop();
+		currentContainer.peek().addChild(addOperation);
+	}
+
+	@Override
+	public void enterSubtractExpression(nl.han.ica.icss.parser.ICSSParser.SubtractExpressionContext ctx) {
+		SubtractOperation subtractOperation = new SubtractOperation();
+		currentContainer.push(subtractOperation);
+	}
+
+	@Override
+	public void exitSubtractExpression(nl.han.ica.icss.parser.ICSSParser.SubtractExpressionContext ctx) {
+		SubtractOperation subtractOperation = (SubtractOperation) currentContainer.pop();
+		currentContainer.peek().addChild(subtractOperation);
+	}
+
+	@Override
+	public void enterMultiplyExpression(nl.han.ica.icss.parser.ICSSParser.MultiplyExpressionContext ctx) {
+		MultiplyOperation multiplyOperation = new MultiplyOperation();
+		currentContainer.push(multiplyOperation);
+	}
+
+	@Override
+	public void exitMultiplyExpression(nl.han.ica.icss.parser.ICSSParser.MultiplyExpressionContext ctx) {
+		MultiplyOperation multiplyOperation = (MultiplyOperation) currentContainer.pop();
+		currentContainer.peek().addChild(multiplyOperation);
 	}
 }

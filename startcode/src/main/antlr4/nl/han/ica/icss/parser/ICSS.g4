@@ -58,11 +58,11 @@ property: LOWER_IDENT;
 
 // Expressions
 expression:
-  expression PLUS expression #addExpr
-  | expression MIN expression #subtractExpr
-  | expression MUL expression #multiplyExpr
-  | value #valueExpr
-  | variable #variableExpr;
+  expression PLUS expression #addExpression
+  | expression MIN expression #subtractExpression
+  | expression MUL expression #multiplyExpression
+  | value #valueExpression
+  | variable #variableExpression;
 
 // Values in expxressions
 value: COLOR #color
