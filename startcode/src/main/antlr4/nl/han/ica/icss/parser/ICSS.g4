@@ -43,13 +43,33 @@ MUL: '*';
 ASSIGNMENT_OPERATOR: ':=';
 
 //--- PARSER: ---
-// -- LEVEL 0, 1 --
+
+// Main Rules
 stylesheet: (variableAssignment | stylerule)+;
 stylerule: tagSelector OPEN_BRACE declaration+ CLOSE_BRACE;
 variableAssignment: variable ASSIGNMENT_OPERATOR expression SEMICOLON;
+
+// Selectors
 tagSelector: ID_IDENT | CLASS_IDENT | LOWER_IDENT | CAPITAL_IDENT;
+
+// Declarations
 declaration: property COLON (expression | variable) SEMICOLON;
 property: LOWER_IDENT;
-expression: COLOR #color | PIXELSIZE #pixelSize | PERCENTAGE #percentage | TRUE #trueBoolean | FALSE #falseBoolean;
-variable: VAR_IDENT;
 
+// Expressions
+expression:
+  expression PLUS expression #addExpr
+  | expression MIN expression #subtractExpr
+  | expression MUL expression #multiplyExpr
+  | value #valueExpr
+  | variable #variableExpr;
+
+// Values in expxressions
+value: COLOR #color
+     | PIXELSIZE #pixelSize
+     | PERCENTAGE #percentage
+     | TRUE #trueBoolean
+     | FALSE #falseBoolean
+     | SCALAR #scalar;
+
+variable: VAR_IDENT;
