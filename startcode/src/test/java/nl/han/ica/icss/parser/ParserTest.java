@@ -20,11 +20,11 @@ class ParserTest {
 
     	InputStream inputStream = classLoader.getResourceAsStream(resource);
         CharStream charStream = CharStreams.fromStream(inputStream);
-        ICSSLexer lexer = new ICSSLexer(charStream);
+        nl.han.ica.icss.parser.ICSSLexer lexer = new nl.han.ica.icss.parser.ICSSLexer(charStream);
 
 	    CommonTokenStream tokens = new CommonTokenStream(lexer);
 
-        ICSSParser parser = new ICSSParser(tokens);
+        nl.han.ica.icss.parser.ICSSParser parser = new nl.han.ica.icss.parser.ICSSParser(tokens);
 		parser.setErrorHandler(new BailErrorStrategy());
 
 		//Setup collection of the parse error messages

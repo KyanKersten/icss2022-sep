@@ -46,11 +46,11 @@ ASSIGNMENT_OPERATOR: ':=';
 
 // Main Rules
 stylesheet: (variableAssignment | stylerule)+;
-stylerule: tagSelector OPEN_BRACE declaration+ CLOSE_BRACE;
+stylerule: selector OPEN_BRACE declaration+ CLOSE_BRACE;
 variableAssignment: variable ASSIGNMENT_OPERATOR expression SEMICOLON;
 
 // Selectors
-tagSelector: ID_IDENT | CLASS_IDENT | LOWER_IDENT | CAPITAL_IDENT;
+selector: ID_IDENT #idSelector | CLASS_IDENT #classSelector | LOWER_IDENT #tagSelector;
 
 // Declarations
 declaration: property COLON (expression | variable) SEMICOLON;

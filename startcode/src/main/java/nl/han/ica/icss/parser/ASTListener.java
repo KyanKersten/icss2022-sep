@@ -9,9 +9,12 @@ import nl.han.ica.icss.ast.literals.*;
 import nl.han.ica.icss.ast.operations.AddOperation;
 import nl.han.ica.icss.ast.operations.MultiplyOperation;
 import nl.han.ica.icss.ast.operations.SubtractOperation;
+import nl.han.ica.icss.ast.selectors.ClassSelector;
+import nl.han.ica.icss.ast.selectors.IdSelector;
 import nl.han.ica.icss.ast.selectors.TagSelector;
 import org.antlr.v4.runtime.ParserRuleContext;
 
+import javax.swing.text.html.HTML;
 import java.awt.*;
 
 /**
@@ -60,15 +63,38 @@ public class ASTListener extends nl.han.ica.icss.parser.ICSSBaseListener {
 
 	@Override
 	public void enterTagSelector(nl.han.ica.icss.parser.ICSSParser.TagSelectorContext ctx) {
-		TagSelector selector = new TagSelector(ctx.getText());
-		currentContainer.push(selector);
-		;
+		TagSelector tagSelector = new TagSelector(ctx.getText());
+		currentContainer.push(tagSelector);
 	}
 
 	@Override
 	public void exitTagSelector(nl.han.ica.icss.parser.ICSSParser.TagSelectorContext ctx) {
-		TagSelector selector = (TagSelector) currentContainer.pop();
-		currentContainer.peek().addChild(selector);
+		TagSelector tagSelector = (TagSelector) currentContainer.pop();
+		currentContainer.peek().addChild(tagSelector);
+	}
+
+	@Override
+	public void enterIdSelector(nl.han.ica.icss.parser.ICSSParser.IdSelectorContext ctx) {
+		IdSelector idSelector = new IdSelector(ctx.getText());
+		currentContainer.push(idSelector);
+	}
+
+	@Override
+	public void exitIdSelector(nl.han.ica.icss.parser.ICSSParser.IdSelectorContext ctx) {
+		IdSelector idSelector = (IdSelector) currentContainer.pop();
+		currentContainer.peek().addChild(idSelector);
+	}
+
+	@Override
+	public void enterClassSelector(nl.han.ica.icss.parser.ICSSParser.ClassSelectorContext ctx) {
+		ClassSelector classSelector = new ClassSelector(ctx.getText());
+		currentContainer.push(classSelector);
+	}
+
+	@Override
+	public void exitClassSelector(nl.han.ica.icss.parser.ICSSParser.ClassSelectorContext ctx) {
+		ClassSelector classSelector = (ClassSelector) currentContainer.pop();
+		currentContainer.peek().addChild(classSelector);
 	}
 
 	@Override
