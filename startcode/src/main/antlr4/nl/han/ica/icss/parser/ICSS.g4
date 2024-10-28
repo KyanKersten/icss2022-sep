@@ -58,9 +58,9 @@ property: LOWER_IDENT;
 
 // Expressions
 expression:
-  expression PLUS expression #addExpression
+  expression MUL expression #multiplyExpression
+  | expression PLUS expression #addExpression
   | expression MIN expression #subtractExpression
-  | expression MUL expression #multiplyExpression
   | value #valueExpression
   | variable #variableExpression;
 
