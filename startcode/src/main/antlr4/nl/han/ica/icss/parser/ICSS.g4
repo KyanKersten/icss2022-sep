@@ -46,7 +46,7 @@ ASSIGNMENT_OPERATOR: ':=';
 
 // Main Rules
 stylesheet: (variableAssignment | stylerule)+;
-stylerule: selector OPEN_BRACE declaration+ CLOSE_BRACE;
+stylerule: selector OPEN_BRACE (declaration | variableAssignment)+ CLOSE_BRACE;
 variableAssignment: variable ASSIGNMENT_OPERATOR expression SEMICOLON;
 
 // Selectors

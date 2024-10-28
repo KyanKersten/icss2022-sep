@@ -11,8 +11,6 @@ import nl.han.ica.icss.ast.types.ExpressionType;
 
 import java.util.HashMap;
 
-
-
 public class Checker {
 
     private IHANLinkedList<HashMap<String, ExpressionType>> variableTypes;
@@ -29,7 +27,9 @@ public class Checker {
     private void checkStyleSheet(Stylesheet node) {
         for (ASTNode child : node.getChildren()) {
             if (child instanceof Stylerule) {
+                enterScope();
                 checkStylerule((Stylerule) child);
+                exitScope();
             } else if (child instanceof VariableAssignment) {
                 checkVariableAssignment((VariableAssignment) child);
             }
@@ -47,8 +47,8 @@ public class Checker {
     }
 
     private void checkVariableReference(VariableReference node) {
-        if (!variableExists(node.name)) {
-            node.setError("Variable " + node.name + " is not defined");
+        if (!variableExistsInScope(node.name)) {
+            node.setError("Variable " + node.name + " is not defined in the current scope");
         }
     }
 
@@ -56,16 +56,18 @@ public class Checker {
         for (ASTNode child : node.getChildren()) {
             if (child instanceof Declaration) {
                 checkDeclaration((Declaration) child);
+            } else if (child instanceof VariableAssignment) {
+                checkVariableAssignment((VariableAssignment) child);
             }
         }
     }
 
     private void checkDeclaration(Declaration node) {
-        if (node.expression instanceof VariableReference) {
-            checkVariableReference((VariableReference) node.expression);
-        } else if (node.expression instanceof Operation) {
+        if (node.expression instanceof Operation) {
             checkOperation((Operation) node.expression);
-        } else if (node.property.name.equals("width")) {
+        } else if (node.expression instanceof VariableReference) {
+            checkVariableReference((VariableReference) node.expression);
+        }  else if (node.property.name.equals("width")) {
             if (!(node.expression instanceof PixelLiteral)) {
                 node.property.setError("Property 'width' has invalid type");
             }
@@ -124,7 +126,7 @@ public class Checker {
 
     private void checkAddOperation(AddOperation operation) {
         if (operation.lhs == null || operation.rhs == null) {
-            System.out.println(operation.lhs + " " + operation.rhs);
+            operation.setError("Add operation has invalid operands");
         } else {
             if (operation.lhs instanceof Operation) {
                 checkOperation((Operation) operation.lhs);
@@ -146,7 +148,7 @@ public class Checker {
         }
     }
 
-    private boolean variableExists(String variableName) {
+    private boolean variableExistsInScope(String variableName) {
         for (int i = 0; i < variableTypes.getSize(); i++) {
             HashMap<String, ExpressionType> scope = variableTypes.get(i);
             if (scope.containsKey(variableName)) {
@@ -172,9 +174,8 @@ public class Checker {
             return getVariableType(ref.name);
         } else if (expression instanceof Operation) {
             return determineOperationType((Operation) expression);
-        } else {
-            return null;
         }
+        return null;
     }
 
     private ExpressionType determineOperationType(Operation operation){
@@ -203,5 +204,13 @@ public class Checker {
             }
         }
         return null;
+    }
+
+    private void enterScope() {
+        variableTypes.addFirst(new HashMap<>());
+    }
+
+    private void exitScope() {
+        variableTypes.removeFirst();
     }
 }
