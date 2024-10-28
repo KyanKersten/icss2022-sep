@@ -93,6 +93,11 @@ public class Checker {
             ExpressionType lhsType = determineExpressionType(operation.lhs);
             ExpressionType rhsType = determineExpressionType(operation.rhs);
 
+            if (lhsType == ExpressionType.COLOR || rhsType == ExpressionType.COLOR){
+                operation.setError("Color may not be used in an multiply operation");
+                return;
+            }
+
             if (lhsType != ExpressionType.SCALAR && rhsType != ExpressionType.SCALAR) {
                 operation.setError("Multiply operation has invalid operands");
             }
@@ -105,6 +110,11 @@ public class Checker {
         } else {
             ExpressionType lhsType = determineExpressionType(operation.lhs);
             ExpressionType rhsType = determineExpressionType(operation.rhs);
+
+            if (lhsType == ExpressionType.COLOR || rhsType == ExpressionType.COLOR){
+                operation.setError("Color may not be used in an subtract operation");
+                return;
+            }
 
             if (lhsType != rhsType) {
                 operation.setError("Subtract operation has invalid operands");
@@ -124,6 +134,11 @@ public class Checker {
 
             ExpressionType lhsType = determineExpressionType(operation.lhs);
             ExpressionType rhsType = determineExpressionType(operation.rhs);
+
+            if (lhsType == ExpressionType.COLOR || rhsType == ExpressionType.COLOR){
+                operation.setError("Color may not be used in an add operation");
+                return;
+            }
 
             if (lhsType != rhsType) {
                 operation.setError("Add operation has invalid operands");
