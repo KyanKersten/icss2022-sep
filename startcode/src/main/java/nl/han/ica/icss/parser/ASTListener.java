@@ -253,4 +253,28 @@ public class ASTListener extends nl.han.ica.icss.parser.ICSSBaseListener {
 		MultiplyOperation multiplyOperation = (MultiplyOperation) currentContainer.pop();
 		currentContainer.peek().addChild(multiplyOperation);
 	}
+
+	@Override
+	public void enterIf_clause(nl.han.ica.icss.parser.ICSSParser.If_clauseContext ctx) {
+		IfClause ifClause = new IfClause();
+		currentContainer.push(ifClause);
+	}
+
+	@Override
+	public void exitIf_clause(nl.han.ica.icss.parser.ICSSParser.If_clauseContext ctx) {
+		IfClause ifClause = (IfClause) currentContainer.pop();
+		currentContainer.peek().addChild(ifClause);
+	}
+
+	@Override
+	public void enterElse_clause(nl.han.ica.icss.parser.ICSSParser.Else_clauseContext ctx) {
+		ElseClause elseClause = new ElseClause();
+		currentContainer.push(elseClause);
+	}
+
+	@Override
+	public void exitElse_clause(nl.han.ica.icss.parser.ICSSParser.Else_clauseContext ctx) {
+		ElseClause elseClause = (ElseClause) currentContainer.pop();
+		currentContainer.peek().addChild(elseClause);
+	}
 }
