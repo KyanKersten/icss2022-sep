@@ -46,7 +46,7 @@ ASSIGNMENT_OPERATOR: ':=';
 
 // Main Rules
 stylesheet: (variableAssignment | stylerule)+;
-stylerule: selector OPEN_BRACE (declaration | variableAssignment)+ CLOSE_BRACE;
+stylerule: selector OPEN_BRACE (declaration | variableAssignment | if_clause)+ CLOSE_BRACE;
 variableAssignment: variable ASSIGNMENT_OPERATOR expression SEMICOLON;
 
 // Selectors
@@ -73,3 +73,7 @@ value: COLOR #color
      | SCALAR #scalar;
 
 variable: VAR_IDENT;
+
+// If clause, else clause
+if_clause: IF BOX_BRACKET_OPEN (TRUE | variable | FALSE) BOX_BRACKET_CLOSE OPEN_BRACE (declaration | variableAssignment | if_clause)+ CLOSE_BRACE (else_clause)?;
+else_clause: ELSE OPEN_BRACE (declaration | variableAssignment)+ CLOSE_BRACE;
