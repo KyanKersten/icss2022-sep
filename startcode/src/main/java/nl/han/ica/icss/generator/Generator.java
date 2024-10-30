@@ -38,7 +38,7 @@ public class Generator {
 	}
 
 	private String generateDeclaration(Declaration node) {
-		return node.property.name + ": " + generateExpression(node.expression);
+		return "  " + node.property.name + ": " + generateExpression(node.expression);
 	}
 
 	private String generateExpression(Expression node) {

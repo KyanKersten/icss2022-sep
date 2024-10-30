@@ -58,6 +58,40 @@ public class Checker {
                 checkDeclaration((Declaration) child);
             } else if (child instanceof VariableAssignment) {
                 checkVariableAssignment((VariableAssignment) child);
+            } else if (child instanceof IfClause) {
+                checkIfClause((IfClause) child);
+            }
+        }
+    }
+
+    private void checkIfClause(IfClause child) {
+        ExpressionType expressionType = determineExpressionType(child.conditionalExpression);
+
+        if (expressionType != ExpressionType.BOOL) {
+            child.conditionalExpression.setError("If clause condition must be of type bool");
+        }
+
+        for (ASTNode bodyChild : child.body) {
+            if (bodyChild instanceof Declaration) {
+                checkDeclaration((Declaration) bodyChild);
+            } else if (bodyChild instanceof VariableAssignment) {
+                checkVariableAssignment((VariableAssignment) bodyChild);
+            } else if (bodyChild instanceof IfClause) {
+                checkIfClause((IfClause) bodyChild);
+            }
+        }
+
+        if (child.elseClause != null){
+            checkElseClause(child.elseClause);
+        }
+    }
+
+    private void checkElseClause(ElseClause elseClause) {
+        for (ASTNode child : elseClause.getChildren()) {
+            if (child instanceof Declaration) {
+                checkDeclaration((Declaration) child);
+            } else if (child instanceof VariableAssignment) {
+                checkVariableAssignment((VariableAssignment) child);
             }
         }
     }
