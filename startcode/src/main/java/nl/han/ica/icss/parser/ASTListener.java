@@ -159,25 +159,13 @@ public class ASTListener extends nl.han.ica.icss.parser.ICSSBaseListener {
 	}
 
 	@Override
-	public void enterTrueBoolean(nl.han.ica.icss.parser.ICSSParser.TrueBooleanContext ctx) {
+	public void enterBooleanLiteral(nl.han.ica.icss.parser.ICSSParser.BooleanLiteralContext ctx) {
 		Expression expression = new BoolLiteral(ctx.getText());
 		currentContainer.push(expression);
 	}
 
 	@Override
-	public void exitTrueBoolean(nl.han.ica.icss.parser.ICSSParser.TrueBooleanContext ctx) {
-		Expression expression = (Expression) currentContainer.pop();
-		currentContainer.peek().addChild(expression);
-	}
-
-	@Override
-	public void enterFalseBoolean(nl.han.ica.icss.parser.ICSSParser.FalseBooleanContext ctx) {
-		Expression expression = new BoolLiteral(ctx.getText());
-		currentContainer.push(expression);
-	}
-
-	@Override
-	public void exitFalseBoolean(nl.han.ica.icss.parser.ICSSParser.FalseBooleanContext ctx) {
+	public void exitBooleanLiteral(nl.han.ica.icss.parser.ICSSParser.BooleanLiteralContext ctx) {
 		Expression expression = (Expression) currentContainer.pop();
 		currentContainer.peek().addChild(expression);
 	}

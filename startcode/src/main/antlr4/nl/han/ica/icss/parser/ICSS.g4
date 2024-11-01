@@ -8,14 +8,12 @@ ELSE: 'else';
 BOX_BRACKET_OPEN: '[';
 BOX_BRACKET_CLOSE: ']';
 
-
 //Literals
 TRUE: 'TRUE';
 FALSE: 'FALSE';
 PIXELSIZE: [0-9]+ 'px';
 PERCENTAGE: [0-9]+ '%';
 SCALAR: [0-9]+;
-
 
 //Color value takes precedence over id idents
 COLOR: '#' [0-9a-f] [0-9a-f] [0-9a-f] [0-9a-f] [0-9a-f] [0-9a-f];
@@ -32,7 +30,7 @@ CAPITAL_IDENT: [A-Z] [A-Za-z0-9_]*;
 //All whitespace is skipped
 WS: [ \t\r\n]+ -> skip;
 
-//
+// Symbols
 OPEN_BRACE: '{';
 CLOSE_BRACE: '}';
 SEMICOLON: ';';
@@ -68,12 +66,12 @@ expression:
 value: COLOR #color
      | PIXELSIZE #pixelSize
      | PERCENTAGE #percentage
-     | TRUE #trueBoolean
-     | FALSE #falseBoolean
+     | booleanLiteral #boolLiteral
      | SCALAR #scalar;
 
 variable: VAR_IDENT;
+booleanLiteral: TRUE | FALSE;
 
 // If clause, else clause
-if_clause: IF BOX_BRACKET_OPEN (TRUE | variable | FALSE) BOX_BRACKET_CLOSE OPEN_BRACE (declaration | variableAssignment | if_clause)+ CLOSE_BRACE (else_clause)?;
+if_clause: IF BOX_BRACKET_OPEN (booleanLiteral | variable) BOX_BRACKET_CLOSE OPEN_BRACE (declaration | variableAssignment | if_clause)+ CLOSE_BRACE (else_clause)?;
 else_clause: ELSE OPEN_BRACE (declaration | variableAssignment)+ CLOSE_BRACE;
