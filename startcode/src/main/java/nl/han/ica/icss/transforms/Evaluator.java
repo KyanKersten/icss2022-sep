@@ -21,7 +21,7 @@ public class Evaluator implements Transform {
 
     public Evaluator() {
         variableValues = new HANLinkedList<>();
-        variableValues.addFirst(new HashMap<>());
+        variableValues.addFirst(new HashMap<>()); // Add a global scope
     }
 
     @Override
@@ -30,7 +30,7 @@ public class Evaluator implements Transform {
     }
 
     private void applyStyleSheet(Stylesheet node) {
-        List<ASTNode> toRemove = new ArrayList<>();
+        List<ASTNode> toRemove = new ArrayList<>(); // List of nodes to remove, we don't want to see variable assignments in the final stylesheet
 
         this.variableValues.addFirst(new HashMap<>()); // Add a new scope for the stylesheet
 
@@ -39,43 +39,43 @@ public class Evaluator implements Transform {
                 applyStyleRule((Stylerule) child);
             } else if (child instanceof VariableAssignment) {
                 this.applyVariableAssignment((VariableAssignment) child);
-                toRemove.add(child);
+                toRemove.add(child); // Add to remove list
             }
         }
 
         this.variableValues.removeFirst(); // Remove the scope for the stylesheet
-        toRemove.forEach(node::removeChild);
+        toRemove.forEach(node::removeChild); // Remove all variable assignments from the stylesheet
     }
 
     private void applyVariableAssignment(VariableAssignment node) {
-        Literal value = (Literal) applyExpression(node.expression);
-        variableValues.getFirst().put(node.name.name, value);
+        Literal value = (Literal) applyExpression(node.expression); // Evaluate the expression
+        variableValues.getFirst().put(node.name.name, value); // Add the variable to the current scope
     }
 
     private void applyStyleRule(Stylerule node) {
-        ArrayList<ASTNode> toAdd = new ArrayList<>();
+        ArrayList<ASTNode> toAdd = new ArrayList<>(); // List of nodes to add, we don't want to see if clauses in the final stylesheet
 
         variableValues.addFirst(new HashMap<>()); // Add a new scope for the style rule
 
         for (ASTNode child: node.body){
-            applyRuleBody(child, toAdd);
+            applyRuleBody(child, toAdd); // Apply the rule body
         }
 
         this.variableValues.removeFirst(); // Remove the scope for the style rule
-
-        node.body = toAdd;
+        node.body = toAdd; // Replace the body with the new body
     }
 
     private void applyRuleBody(ASTNode node, ArrayList<ASTNode> parentBody) {
         if (node instanceof Declaration) {
             applyDeclaration((Declaration) node);
-            parentBody.add(node);
+            parentBody.add(node); // Add the declaration to the parent body
         }
 
         if (node instanceof VariableAssignment) {
             applyVariableAssignment((VariableAssignment) node);
         }
 
+        // TR02: Evalueer if/else expressies. Schrijf een transformatie in Evaluator die alle IfClauses uit de AST verwijdert. Wanneer de conditie van de IfClause TRUE is wordt deze vervangen door de body van het if-statement. Als de conditie FALSE is dan vervang je de IfClause door de body van de ElseClause. Als er geen ElseClause is bij een negatieve conditie dan verwijder je de IfClause volledig uit de AST.
         if (node instanceof IfClause) {
             IfClause ifClause = (IfClause) node;
             ifClause.conditionalExpression = applyExpression(ifClause.conditionalExpression);
@@ -125,6 +125,7 @@ public class Evaluator implements Transform {
         return expression;
     }
 
+    // TR01: Evalueer expressies. Schrijf een transformatie in Evaluator die alle Expression knopen in de AST door een Literal knoop met de berekende waarde vervangt.
     private Expression applyOperation(Expression operation) {
         if (operation instanceof MultiplyOperation){
             return applyMultiplyOperation((MultiplyOperation) operation);

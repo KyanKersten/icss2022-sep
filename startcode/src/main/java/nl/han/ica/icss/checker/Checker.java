@@ -139,7 +139,9 @@ public class Checker {
             } else if (node instanceof VariableAssignment){
                 checkVariableAssignment((VariableAssignment) node);
             } else if (node instanceof IfClause){
+                enterScope();
                 checkIfClause((IfClause) node);
+                exitScope();
             }
         }
     }
