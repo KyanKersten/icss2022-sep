@@ -9,15 +9,15 @@ import nl.han.ica.icss.ast.operations.MultiplyOperation;
 import nl.han.ica.icss.ast.operations.SubtractOperation;
 import nl.han.ica.icss.ast.types.ExpressionType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Checker {
-
     private IHANLinkedList<HashMap<String, ExpressionType>> variableTypes;
 
     public Checker() {
         variableTypes = new HANLinkedList<>();
-        variableTypes.addFirst(new HashMap<>());
+        variableTypes.addFirst(new HashMap<>()); // Add global scope
     }
 
     public void check(AST ast) {
@@ -37,36 +37,40 @@ public class Checker {
     }
 
     private void checkVariableAssignment(VariableAssignment node) {
+        String variableName = node.name.name;
         ExpressionType expressionType = determineExpressionType(node.expression);
 
-        if (expressionType != null) {
-            variableTypes.getFirst().put(node.name.name, expressionType);
-        } else {
-            node.setError("Cannot assign an unknown type to variable " + node.name.name);
+        variableTypes.getFirst().put(variableName, expressionType);
+
+        checkExpression(node.expression);
+    }
+
+    private void checkExpression(Expression expression) {
+        if (expression instanceof VariableReference) {
+            checkVariableReference((VariableReference) expression);
+        } else if (expression instanceof Operation) {
+            checkOperation((Operation) expression);
         }
     }
 
     private void checkVariableReference(VariableReference node) {
-        if (!variableExistsInScope(node.name)) {
-            node.setError("Variable " + node.name + " is not defined in the current scope");
+        String variableName = node.name;
+
+        // CH01: Controleer of er geen variabelen worden gebruikt die niet gedefinieerd zijn.
+        // CH06: Controleer of variabelen enkel binnen hun scope gebruikt worden
+        if (!variableExistsInScope(variableName)) {
+            node.setError("Variable '" + variableName + "' is not defined in the current scope");
         }
     }
 
     private void checkStylerule(Stylerule node) {
-        for (ASTNode child : node.getChildren()) {
-            if (child instanceof Declaration) {
-                checkDeclaration((Declaration) child);
-            } else if (child instanceof VariableAssignment) {
-                checkVariableAssignment((VariableAssignment) child);
-            } else if (child instanceof IfClause) {
-                checkIfClause((IfClause) child);
-            }
-        }
+        this.checkRuleBody(node.body);
     }
 
     private void checkIfClause(IfClause child) {
         ExpressionType expressionType = determineExpressionType(child.conditionalExpression);
 
+        // CH05: Controleer of de conditie van een if-clause een boolean is.
         if (expressionType != ExpressionType.BOOL) {
             child.conditionalExpression.setError("If clause condition must be of type bool");
         }
@@ -97,17 +101,45 @@ public class Checker {
     }
 
     private void checkDeclaration(Declaration node) {
-        if (node.expression instanceof Operation) {
-            checkOperation((Operation) node.expression);
-        } else if (node.expression instanceof VariableReference) {
+        ExpressionType expressionType = determineExpressionType(node.expression);
+
+        if (node.expression instanceof VariableReference){
             checkVariableReference((VariableReference) node.expression);
-        }  else if (node.property.name.equals("width")) {
-            if (!(node.expression instanceof PixelLiteral)) {
-                node.property.setError("Property 'width' has invalid type");
+            if (node.expression.hasError()) { // If variable reference has error return to not display multiple errors
+                return;
             }
-        } else if (node.property.name.equals("color") | node.property.name.equals("background-color")) {
-            if (!(node.expression instanceof ColorLiteral)) {
-                node.setError("Property '" + node.property.name + "' has invalid type");
+        }
+
+        // CH04 - Controleer of bij declaraties het type van de value klopt met de property.
+        switch (node.property.name){
+        case "width":
+        case "height":
+        if (expressionType != ExpressionType.PIXEL && expressionType != ExpressionType.PERCENTAGE) {
+            node.setError("Property '" + node.property.name + "' can only be of type pixel or percentage literal");
+        }
+        break;
+
+        case "color":
+        case "background-color":
+        if (expressionType != ExpressionType.COLOR) {
+            node.setError("Property '" + node.property.name + "' can only be of type color literal");
+        }
+        break;
+
+        default:
+        node.setError("Property " + node.property.name + " is not a valid property");
+        break;
+        }
+    }
+
+    private void checkRuleBody(ArrayList<ASTNode> body){
+        for (ASTNode node : body){
+            if (node instanceof Declaration){
+                checkDeclaration((Declaration) node);
+            } else if (node instanceof VariableAssignment){
+                checkVariableAssignment((VariableAssignment) node);
+            } else if (node instanceof IfClause){
+                checkIfClause((IfClause) node);
             }
         }
     }
@@ -123,69 +155,69 @@ public class Checker {
     }
 
     private void checkMultiplyOperation(MultiplyOperation operation) {
-        if (operation.lhs == null || operation.rhs == null) {
-            operation.setError("Multiply operation has invalid operands");
-        } else {
             ExpressionType lhsType = determineExpressionType(operation.lhs);
             ExpressionType rhsType = determineExpressionType(operation.rhs);
 
+            // CH03: Controleer of er geen kleuren worden gebruikt in operaties (plus, min en keer).
             if (lhsType == ExpressionType.COLOR || rhsType == ExpressionType.COLOR){
                 operation.setError("Color may not be used in an multiply operation");
                 return;
             }
 
+            // CH02: Controleer dat bij vermenigvuldigen minimaal een operand een scalaire waarde is.
             if (lhsType != ExpressionType.SCALAR && rhsType != ExpressionType.SCALAR) {
                 operation.setError("Multiply operation has invalid operands");
             }
         }
-    }
 
     private void checkSubtractOperation(SubtractOperation operation) {
-        if (operation.lhs == null || operation.rhs == null) {
-            operation.setError("Subtract operation has invalid operands");
-        } else {
             ExpressionType lhsType = determineExpressionType(operation.lhs);
             ExpressionType rhsType = determineExpressionType(operation.rhs);
 
+            // CH03: Controleer of er geen kleuren worden gebruikt in operaties (plus, min en keer).
             if (lhsType == ExpressionType.COLOR || rhsType == ExpressionType.COLOR){
                 operation.setError("Color may not be used in an subtract operation");
                 return;
             }
 
+            // CH02: Controleer of de operanden van de operaties plus en min van gelijk type zijn.
             if (lhsType != rhsType) {
                 operation.setError("Subtract operation has invalid operands");
             }
         }
-    }
 
     private void checkAddOperation(AddOperation operation) {
-        if (operation.lhs == null || operation.rhs == null) {
-            operation.setError("Add operation has invalid operands");
-        } else {
             if (operation.lhs instanceof Operation) {
                 checkOperation((Operation) operation.lhs);
             } else if (operation.rhs instanceof Operation) {
                 checkOperation((Operation) operation.rhs);
             }
 
+            if (operation.lhs instanceof VariableReference) {
+                checkVariableReference((VariableReference) operation.lhs);
+            } else if (operation.rhs instanceof VariableReference) {
+                checkVariableReference((VariableReference) operation.rhs);
+            }
+
             ExpressionType lhsType = determineExpressionType(operation.lhs);
             ExpressionType rhsType = determineExpressionType(operation.rhs);
 
+            // CH03: Controleer of er geen kleuren worden gebruikt in operaties (plus, min en keer).
             if (lhsType == ExpressionType.COLOR || rhsType == ExpressionType.COLOR){
                 operation.setError("Color may not be used in an add operation");
                 return;
             }
 
+           // CH02: Controleer of de operanden van de operaties plus en min van gelijk type zijn.
             if (lhsType != rhsType) {
-                operation.setError("Add operation has invalid operands");
+                operation.setError("Can not add " + lhsType + " to " + rhsType + "");
             }
         }
-    }
 
     private boolean variableExistsInScope(String variableName) {
         for (int i = 0; i < variableTypes.getSize(); i++) {
-            HashMap<String, ExpressionType> scope = variableTypes.get(i);
-            if (scope.containsKey(variableName)) {
+            HashMap<String, ExpressionType> scope = variableTypes.get(i); // Get scope
+            if (scope.containsKey(variableName)) { // If variable is found in scope
                 return true;
             }
         }
@@ -217,13 +249,13 @@ public class Checker {
         ExpressionType rhsType = determineExpressionType(operation.rhs);
 
         if (operation instanceof MultiplyOperation) {
-            if (lhsType == ExpressionType.SCALAR) {
+            if (lhsType == ExpressionType.SCALAR) { // If left side is scalar
                 return rhsType;
-            } else if (rhsType == ExpressionType.SCALAR) {
+            } else if (rhsType == ExpressionType.SCALAR) { // If right side is scalar
                 return lhsType;
             }
         } else if (operation instanceof AddOperation || operation instanceof SubtractOperation) {
-            if (lhsType == rhsType) {
+            if (lhsType == rhsType) { // If left side is equal to right side
                 return lhsType;
             }
         }
@@ -232,8 +264,8 @@ public class Checker {
 
     private ExpressionType getVariableType(String variableName) {
         for (int i = 0; i < variableTypes.getSize(); i++) {
-            HashMap<String, ExpressionType> scope = variableTypes.get(i);
-            if (scope.containsKey(variableName)) {
+            HashMap<String, ExpressionType> scope = variableTypes.get(i); // Get scope
+            if (scope.containsKey(variableName)) { // If variable is found in scope
                 return scope.get(variableName);
             }
         }
@@ -241,10 +273,10 @@ public class Checker {
     }
 
     private void enterScope() {
-        variableTypes.addFirst(new HashMap<>());
+        variableTypes.addFirst(new HashMap<>()); // Add new scope
     }
 
     private void exitScope() {
-        variableTypes.removeFirst();
+        variableTypes.removeFirst(); // Remove current scope
     }
 }
