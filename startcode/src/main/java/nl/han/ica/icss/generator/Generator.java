@@ -8,33 +8,32 @@ import nl.han.ica.icss.ast.literals.PercentageLiteral;
 import nl.han.ica.icss.ast.literals.PixelLiteral;
 
 public class Generator {
-
 	public String generate(AST ast) {
-        return generateStylesheet((Stylesheet)ast.root);
+        return generateStylesheet(ast.root);
 	}
 
 	private String generateStylesheet(Stylesheet node) {
-		String result = "";
+		StringBuilder result = new StringBuilder();
 		for (ASTNode child : node.getChildren()) {
 			if (child instanceof Stylerule) {
-				result += generateStylerule((Stylerule) child) + "\n";
+				result.append(generateStylerule((Stylerule) child)).append("\n");
 			}
 		}
 		return result.toString();
 	}
 
 	private String generateStylerule(Stylerule node) {
-		String result = "";
+		StringBuilder result = new StringBuilder();
 
 		for (ASTNode child : node.selectors){
-			result += child.toString() + " {\n";
+			result.append(child.toString()).append(" {\n");
 		}
 		for (ASTNode declaration : node.body){
-			result += generateDeclaration((Declaration) declaration) + "\n";
+			result.append(generateDeclaration((Declaration) declaration)).append("\n");
 		}
 
-		result += "}\n";
-		return result;
+		result.append("}\n");
+		return result.toString();
 	}
 
 	private String generateDeclaration(Declaration node) {
