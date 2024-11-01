@@ -8,6 +8,7 @@ import nl.han.ica.icss.ast.literals.PercentageLiteral;
 import nl.han.ica.icss.ast.literals.PixelLiteral;
 
 public class Generator {
+	// GE01: Implementeer de generator in nl.han.ica.icss.generator.Generator die de AST naar een CSS2-compliant string omzet
 	public String generate(AST ast) {
         return generateStylesheet(ast.root);
 	}
@@ -16,7 +17,7 @@ public class Generator {
 		StringBuilder result = new StringBuilder();
 		for (ASTNode child : node.getChildren()) {
 			if (child instanceof Stylerule) {
-				result.append(generateStylerule((Stylerule) child)).append("\n");
+				result.append(generateStylerule((Stylerule) child)).append("\n"); // Voor iedere stylerule een nieuwe regel
 			}
 		}
 		return result.toString();
@@ -26,17 +27,18 @@ public class Generator {
 		StringBuilder result = new StringBuilder();
 
 		for (ASTNode child : node.selectors){
-			result.append(child.toString()).append(" {\n");
+			result.append(child.toString()).append(" {\n"); // Voor iedere selector een nieuwe regel
 		}
 		for (ASTNode declaration : node.body){
-			result.append(generateDeclaration((Declaration) declaration)).append("\n");
+			result.append(generateDeclaration((Declaration) declaration)).append("\n"); // Voor iedere declaration een nieuwe regel
 		}
 
-		result.append("}\n");
+		result.append("}\n"); // Sluit de stylerule af
 		return result.toString();
 	}
 
 	private String generateDeclaration(Declaration node) {
+		// GE02: Zorg dat de CSS met twee spaties inspringing per scopeniveau gegenereerd wordt.
 		return "  " + node.property.name + ": " + generateExpression(node.expression);
 	}
 
